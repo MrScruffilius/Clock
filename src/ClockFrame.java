@@ -12,15 +12,18 @@ public class ClockFrame extends JFrame {
     static final int WIDTH = Toolkit.getDefaultToolkit().getScreenSize().width;
 
 
-    Color colorFirstLight=new Color(0x10,0x10,0x15);
-    Color colorFirstDark=new Color(0xef,0xf0,0xc0);
+    Color colorFirstLight=new Color(0x15,0x15,0x15);
+    Color colorFirstDark=new Color(0xf0,0xa0,0xf0);
 
 
 
 
+    static final int timeInMillis=20;
 
     JPixelLabel[][] field;
-    LocalTime lastTime;
+
+    int lastHour;
+    int lastMinute;
 
     /**
      *
@@ -144,15 +147,16 @@ public class ClockFrame extends JFrame {
                 this.add(field[x][y]);
             }
         }
-        setToTime(LocalTime.now());
+        setToTime (LocalTime.now().getHour(),LocalTime.now().getMinute());
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true) {
-                    setToTime(LocalTime.now());
+                    LocalTime curr = LocalTime.now();
+                    setToTime(curr.getHour(),curr.getMinute());
                     try {
-                        sleep(500);
+                        sleep(300);
                     } catch (Exception ignored) {
                     }
                 }
@@ -214,30 +218,38 @@ public class ClockFrame extends JFrame {
         this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.setVisible(true);
     }
-    public void setToTime(LocalTime time) {
+    public void setToTime(int hour, int minute) {
         Thread t1 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int number = time.getHour()/10;
-                if (lastTime==null||number!=lastTime.getHour()/10)setSegment(4,5,number);
+                int number = hour/10;
+                try{
+                    if (lastHour==0||number!=lastHour/10)setSegment(4,5,number);
+                }catch(Exception ignored){}
         }});
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int number = time.getHour()%10;
-                if (lastTime==null||number!=lastTime.getHour()%10)setSegment(13,5,number);
+                int number = hour%10;
+                try{
+                    if (lastHour==0||number!=lastHour%10)setSegment(13,5,number);
+                }catch(Exception ignored){}
             }});
         Thread t3 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int number = time.getMinute()/10;
-                if (lastTime==null||number!=lastTime.getMinute()/10)setSegment(25,5,number);
+                int number = minute/10;
+                try{
+                    if (lastMinute==0||number!=lastMinute/10)setSegment(25,5,number);
+                }catch(Exception ignored){}
             }});
         Thread t4 = new Thread(new Runnable() {
             @Override
             public void run() {
-                int number = time.getMinute()%10;
-                if (lastTime==null||number!=lastTime.getHour()%10)setSegment(34,5,number);
+                int number = minute%10;
+                try{
+                    if (lastMinute==0||number!=lastMinute%10)setSegment(34,5,number);
+                }catch(Exception ignored){}
             }});
         t1.start();
         t2.start();
@@ -250,123 +262,201 @@ public class ClockFrame extends JFrame {
             t3.join();
             t4.join();
         }catch(Exception ignored){}
-        lastTime=time;
-
+        lastMinute = minute;
+        lastHour = hour;
     }
 
 
 
 
-    public void setSegment(int offsetX, int offsetY, int number){
+    public void setSegment(int offsetX, int offsetY, int number) throws InterruptedException {
         //Segment 0
         if (number!=1 && number!= 4){
             (field[offsetX+1][offsetY]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+2][offsetY]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+3][offsetY]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+4][offsetY]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+5][offsetY]).setToColor(1);
+            sleep(timeInMillis);
 
         }else{
             (field[offsetX+1][offsetY]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+2][offsetY]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+3][offsetY]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+4][offsetY]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+5][offsetY]).setToColor(0);
-        }
-        //Segment 3
-        if (number!=0 && number!= 1 && number !=7){
-            (field[offsetX+1][offsetY+6]).setToColor(1);
-            (field[offsetX+2][offsetY+6]).setToColor(1);
-            (field[offsetX+3][offsetY+6]).setToColor(1);
-            (field[offsetX+4][offsetY+6]).setToColor(1);
-            (field[offsetX+5][offsetY+6]).setToColor(1);
-
-        }else{
-            (field[offsetX+1][offsetY+6]).setToColor(0);
-            (field[offsetX+2][offsetY+6]).setToColor(0);
-            (field[offsetX+3][offsetY+6]).setToColor(0);
-            (field[offsetX+4][offsetY+6]).setToColor(0);
-            (field[offsetX+5][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
         }
 
-        //Segment 6
-        if (number!=1 && number!= 4 && number !=7){
-            (field[offsetX+1][offsetY+12]).setToColor(1);
-            (field[offsetX+2][offsetY+12]).setToColor(1);
-            (field[offsetX+3][offsetY+12]).setToColor(1);
-            (field[offsetX+4][offsetY+12]).setToColor(1);
-            (field[offsetX+5][offsetY+12]).setToColor(1);
 
-        }else{
-            (field[offsetX+1][offsetY+12]).setToColor(0);
-            (field[offsetX+2][offsetY+12]).setToColor(0);
-            (field[offsetX+3][offsetY+12]).setToColor(0);
-            (field[offsetX+4][offsetY+12]).setToColor(0);
-            (field[offsetX+5][offsetY+12]).setToColor(0);
-        }
-
-        //Segment 1
-        if (number!=1 && number!= 2 && number !=3 && number !=7){
-            (field[offsetX][offsetY+1]).setToColor(1);
-            (field[offsetX][offsetY+2]).setToColor(1);
-            (field[offsetX][offsetY+3]).setToColor(1);
-            (field[offsetX][offsetY+4]).setToColor(1);
-            (field[offsetX][offsetY+5]).setToColor(1);
-
-        }else{
-            (field[offsetX][offsetY+1]).setToColor(0);
-            (field[offsetX][offsetY+2]).setToColor(0);
-            (field[offsetX][offsetY+3]).setToColor(0);
-            (field[offsetX][offsetY+4]).setToColor(0);
-            (field[offsetX][offsetY+5]).setToColor(0);
-        }
 
         //Segment 2
         if (number!=5 && number!= 6){
             (field[offsetX+6][offsetY+1]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+2]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+3]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+4]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+5]).setToColor(1);
+            sleep(timeInMillis);
 
         }else{
             (field[offsetX+6][offsetY+1]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+2]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+3]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+4]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+5]).setToColor(0);
+            sleep(timeInMillis);
         }
-        //Segment 4
-        if (number%2==0&& number!=4){
-            (field[offsetX][offsetY+7]).setToColor(1);
-            (field[offsetX][offsetY+8]).setToColor(1);
-            (field[offsetX][offsetY+9]).setToColor(1);
-            (field[offsetX][offsetY+10]).setToColor(1);
-            (field[offsetX][offsetY+11]).setToColor(1);
-
-        }else{
-            (field[offsetX][offsetY+7]).setToColor(0);
-            (field[offsetX][offsetY+8]).setToColor(0);
-            (field[offsetX][offsetY+9]).setToColor(0);
-            (field[offsetX][offsetY+10]).setToColor(0);
-            (field[offsetX][offsetY+11]).setToColor(0);
-        }
-
         //Segment 5
         if (number!=2){
             (field[offsetX+6][offsetY+7]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+8]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+9]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+10]).setToColor(1);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+11]).setToColor(1);
+            sleep(timeInMillis);
 
         }else{
             (field[offsetX+6][offsetY+7]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+8]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+9]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+10]).setToColor(0);
+            sleep(timeInMillis);
             (field[offsetX+6][offsetY+11]).setToColor(0);
+            sleep(timeInMillis);
         }
+        //Segment 6
+        if (number!=1 && number!= 4 && number !=7){
+            (field[offsetX+1][offsetY+12]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+2][offsetY+12]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+3][offsetY+12]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+4][offsetY+12]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+5][offsetY+12]).setToColor(1);
+            sleep(timeInMillis);
+
+        }else{
+            (field[offsetX+1][offsetY+12]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+2][offsetY+12]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+3][offsetY+12]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+4][offsetY+12]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+5][offsetY+12]).setToColor(0);
+            sleep(timeInMillis);
+        }
+
+
+        //Segment 4
+        if (number%2==0&& number!=4){
+            (field[offsetX][offsetY+7]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+8]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+9]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+10]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+11]).setToColor(1);
+            sleep(timeInMillis);
+
+        }else{
+            (field[offsetX][offsetY+7]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+8]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+9]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+10]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+11]).setToColor(0);
+            sleep(timeInMillis);
+        }
+
+
+        //Segment 1
+        if (number!=1 && number!= 2 && number !=3 && number !=7){
+            (field[offsetX][offsetY+1]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+2]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+3]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+4]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+5]).setToColor(1);
+            sleep(timeInMillis);
+
+        }else{
+            (field[offsetX][offsetY+1]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+2]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+3]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+4]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX][offsetY+5]).setToColor(0);
+            sleep(timeInMillis);
+        }
+
+
+        //Segment 3
+        if (number!=0 && number!= 1 && number !=7){
+            (field[offsetX+1][offsetY+6]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+2][offsetY+6]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+3][offsetY+6]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+4][offsetY+6]).setToColor(1);
+            sleep(timeInMillis);
+            (field[offsetX+5][offsetY+6]).setToColor(1);
+            sleep(timeInMillis);
+
+        }else{
+            (field[offsetX+1][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+2][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+3][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+4][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
+            (field[offsetX+5][offsetY+6]).setToColor(0);
+            sleep(timeInMillis);
+        }
+
+
+
     }
     public void updateFieldColors(){
             for (int y=0;y<23;y++){
