@@ -24,3 +24,5 @@ Press *T* to change the theme from dark to light or the other way around
 ![pic2](./Resources/clock2.png)
 
 ![pic3](./Resources/clock3.png)
+
+![vid](./Resources/vid.mp4)
